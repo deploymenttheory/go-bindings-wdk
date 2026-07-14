@@ -1,75 +1,72 @@
-# Template
+# go-bindings-wdk
 
-This repository serves as a **Default Template Repository** according official [GitHub Contributing Guidelines][ProjectSetup] for healthy contributions. It brings you clean default Templates for several areas:
+[![Go Reference](https://pkg.go.dev/badge/github.com/deploymenttheory/go-bindings-wdk.svg)](https://pkg.go.dev/github.com/deploymenttheory/go-bindings-wdk)
+[![CI](https://github.com/deploymenttheory/go-bindings-wdk/actions/workflows/ci.yml/badge.svg)](https://github.com/deploymenttheory/go-bindings-wdk/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-- [Azure DevOps Pull Requests](.azuredevops/PULL_REQUEST_TEMPLATE.md) ([`.azuredevops\PULL_REQUEST_TEMPLATE.md`](`.azuredevops\PULL_REQUEST_TEMPLATE.md`))
-- [Azure Pipelines](.pipelines/pipeline.yml) ([`.pipelines/pipeline.yml`](`.pipelines/pipeline.yml`))
-- [GitHub Workflows](.github/workflows/)
-  - [Super Linter](.github/workflows/linter.yml) ([`.github/workflows/linter.yml`](`.github/workflows/linter.yml`))
-  - [Sample Workflows](.github/workflows/workflow.yml) ([`.github/workflows/workflow.yml`](`.github/workflows/workflow.yml`))
-- [GitHub Pull Requests](.github/PULL_REQUEST_TEMPLATE.md) ([`.github/PULL_REQUEST_TEMPLATE.md`](`.github/PULL_REQUEST_TEMPLATE.md`))
-- [GitHub Issues](.github/ISSUE_TEMPLATE/)
-  - [Feature Requests](.github/ISSUE_TEMPLATE/FEATURE_REQUEST.md) ([`.github/ISSUE_TEMPLATE/FEATURE_REQUEST.md`](`.github/ISSUE_TEMPLATE/FEATURE_REQUEST.md`))
-  - [Bug Reports](.github/ISSUE_TEMPLATE/BUG_REPORT.md) ([`.github/ISSUE_TEMPLATE/BUG_REPORT.md`](`.github/ISSUE_TEMPLATE/BUG_REPORT.md`))
-- [Codeowners](.github/CODEOWNERS) ([`.github/CODEOWNERS`](`.github/CODEOWNERS`)) _adjust usernames once cloned_
-- [Wiki and Documentation](docs/) ([`docs/`](`docs/`))
-- [gitignore](.gitignore) ([`.gitignore`](.gitignore))
-- [gitattributes](.gitattributes) ([`.gitattributes`](.gitattributes))
-- [Changelog](CHANGELOG.md) ([`CHANGELOG.md`](`CHANGELOG.md`))
-- [Code of Conduct](CODE_OF_CONDUCT.md) ([`CODE_OF_CONDUCT.md`](`CODE_OF_CONDUCT.md`))
-- [Contribution](CONTRIBUTING.md) ([`CONTRIBUTING.md`](`CONTRIBUTING.md`))
-- [License](LICENSE) ([`LICENSE`](`LICENSE`)) _adjust projectname once cloned_
-- [Readme](README.md) ([`README.md`](`README.md`))
-- [Security](SECURITY.md) ([`SECURITY.md`](`SECURITY.md`))
+Idiomatic Go bindings for the **Windows Driver Kit metadata surface**
+(`Windows.Wdk.*`), generated from Microsoft's
+[wdkmetadata](https://github.com/microsoft/wdkmetadata). The sister of
+[go-bindings-win32](https://github.com/deploymenttheory/go-bindings-win32),
+built on the same [go-winmd](https://github.com/deploymenttheory/go-winmd)
+ECMA-335 reader and the same generate-don't-handwrite doctrine: committed
+metadata, byte-deterministic regeneration, ABI layout assertions, live
+acceptance tests.
 
+What you get in practice is the **typed user-mode Native API**: the `Nt*` /
+`Rtl*` `ntdll.dll` exports (registry transactions, filesystem, memory,
+system information, threading…) with full struct/enum/constant definitions —
+including the kernel-shaped types (`IRP`, `OBJECT_ATTRIBUTES` consumers,
+`KEY_*` information classes) that user-mode systems tools otherwise
+hand-transcribe from headers.
+
+```go
+import (
+	"github.com/deploymenttheory/go-bindings-wdk/bindings/wdk/system/systemservices"
+	win32systeminformation "github.com/deploymenttheory/go-bindings-win32/bindings/win32/system/systeminformation"
+)
+
+var info win32systeminformation.OSVERSIONINFOW
+info.DwOSVersionInfoSize = uint32(unsafe.Sizeof(info))
+if status := systemservices.RtlGetVersion(&info); status == 0 {
+	fmt.Printf("Windows %d.%d build %d\n", info.DwMajorVersion, info.DwMinorVersion, info.DwBuildNumber)
+}
+```
+
+## One type universe with go-bindings-win32
+
+`Windows.Wdk.winmd` references types defined in `Windows.Win32.*`. This
+generator loads **both** winmds for resolution but emits only the
+`Windows.Wdk.*` packages — cross-assembly references are **imports of the
+published go-bindings-win32 module** (`win32foundation.HANDLE`,
+`win32foundation.NTSTATUS`, …), so WDK handles and structs compose directly
+with Win32 functions. The pinned win32metadata version in
+`metadata/winmd/PROVENANCE.json` must match the winmd version of the
+go-bindings-win32 release in `go.mod`; CI compiles the generated tree
+against that release to catch skew.
+
+Functions dispatch through `syscall.SyscallN` against `ntdll.dll` only —
+kernel-mode-only DDIs carry no user-mode export in the metadata and are not
+emitted as functions (their types, constants, and enums are).
 
 ## Status
 
-[![Super Linter](<https://github.com/segraef/Template/actions/workflows/linter.yml/badge.svg>)](<https://github.com/segraef/Template/actions/workflows/linter.yml>)
+Upstream wdkmetadata is **experimental** (`0.x-experimental`) with growing
+coverage; a weekly workflow opens a regeneration PR when Microsoft ships a
+new release. Constructs that can't be represented faithfully are skipped
+with diagnostics ratcheted in `metadata/diagnostics-baseline.json`.
 
-[![Sample Workflow](<https://github.com/segraef/Template/actions/workflows/workflow.yml/badge.svg>)](<https://github.com/segraef/Template/actions/workflows/workflow.yml>)
+## How it's built
 
-## Creating a repository from a template
+```sh
+go run ./cmd/generate fetch-metadata   # WDK (latest) + win32 (pinned) winmds
+go run ./cmd/generate ingest           # both winmds → IR (Wdk local, Win32. external)
+go run ./cmd/generate bindings         # IR → bindings/wdk (self-cleaning, deterministic)
+```
 
-You can [generate](https://github.com/segraef/Template/generate) a new repository with the same directory structure and files as an existing repository. More details can be found [here][CreateFromTemplate].
+Generated code (`bindings/`) is never hand-edited — fix the generator under
+`internal/` and regenerate.
 
-## Reporting Issues and Feedback
+## License
 
-### Issues and Bugs
-
-If you find any bugs, please file an issue in the [GitHub Issues][GitHubIssues] page. Please fill out the provided template with the appropriate information.
-
-If you are taking the time to mention a problem, even a seemingly minor one, it is greatly appreciated, and a totally valid contribution to this project. **Thank you!**
-
-## Feedback
-
-If there is a feature you would like to see in here, please file an issue or feature request in the [GitHub Issues][GitHubIssues] page to provide direct feedback.
-
-## Contribution
-
-If you would like to become an active contributor to this repository or project, please follow the instructions provided in [`CONTRIBUTING.md`][Contributing].
-
-## Learn More
-
-* [GitHub Documentation][GitHubDocs]
-* [Azure DevOps Documentation][AzureDevOpsDocs]
-* [Microsoft Azure Documentation][MicrosoftAzureDocs]
-
-<!-- References -->
-
-<!-- Local -->
-[ProjectSetup]: <https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions>
-[CreateFromTemplate]: <https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-on-github/creating-a-repository-from-a-template>
-[GitHubDocs]: <https://docs.github.com/>
-[AzureDevOpsDocs]: <https://docs.microsoft.com/en-us/azure/devops/?view=azure-devops>
-[GitHubIssues]: <https://github.com/segraef/Template/issues>
-[Contributing]: CONTRIBUTING.md
-
-<!-- External -->
-[Az]: <https://img.shields.io/powershellgallery/v/Az.svg?style=flat-square&label=Az>
-[AzGallery]: <https://www.powershellgallery.com/packages/Az/>
-[PowerShellCore]: <https://github.com/PowerShell/PowerShell/releases/latest>
-
-<!-- Docs -->
-[MicrosoftAzureDocs]: <https://docs.microsoft.com/en-us/azure/>
-[PowerShellDocs]: <https://docs.microsoft.com/en-us/powershell/>
+[MIT](LICENSE).

@@ -1,0 +1,28 @@
+{
+  "entries": [
+    "[Foundation] cycle break: Struct Storage.FileSystem.COMPRESSED_DATA_INFO not representable without import",
+    "[Foundation] cycle break: Struct Storage.FileSystem.FILE_BASIC_INFORMATION not representable without import",
+    "[Foundation] cycle break: Struct Storage.FileSystem.FILE_NETWORK_OPEN_INFORMATION not representable without import",
+    "[Foundation] cycle break: Struct Storage.FileSystem.FILE_STANDARD_INFORMATION not representable without import",
+    "[Foundation] cycle break: enum System.SystemServices.IO_ALLOCATION_ACTION flattened to int32",
+    "delegate _WHEA_ERROR_SOURCE_CORRECT: name already used in package System.SystemServices",
+    "delegate _WHEA_ERROR_SOURCE_CREATE_RECORD: name already used in package System.SystemServices",
+    "delegate _WHEA_ERROR_SOURCE_INITIALIZE: name already used in package System.SystemServices",
+    "delegate _WHEA_ERROR_SOURCE_RECOVER: name already used in package System.SystemServices",
+    "delegate _WHEA_ERROR_SOURCE_UNINITIALIZE: name already used in package System.SystemServices",
+    "delegate _WHEA_SIGNAL_HANDLER_OVERRIDE_CALLBACK: name already used in package System.SystemServices",
+    "function ClfsEarlierLsn: by-value win32storagefilesystem.CLS_LSN return not marshalable, function skipped",
+    "function ClfsLaterLsn: by-value win32storagefilesystem.CLS_LSN return not marshalable, function skipped",
+    "function ClfsLsnCreate: by-value win32storagefilesystem.CLS_LSN return not marshalable, function skipped",
+    "function FsRtlDissectDbcs: param Path not marshalable (win32systemkernel.STRING), function skipped",
+    "function FsRtlDissectName: param Path not marshalable (win32foundation.UNICODE_STRING), function skipped",
+    "function FsRtlIsFatDbcsLegal: param DbcsName not marshalable (win32systemkernel.STRING), function skipped",
+    "function FsRtlIsHpfsDbcsLegal: param DbcsName not marshalable (win32systemkernel.STRING), function skipped",
+    "function MmCopyMemory: param SourceAddress not marshalable (MM_COPY_ADDRESS), function skipped",
+    "function NdisClGetProtocolVcContextFromTapiCallId: param TapiCallId not marshalable (win32foundation.UNICODE_STRING), function skipped",
+    "function PoRequestPowerIrp: param PowerState not marshalable (POWER_STATE), function skipped",
+    "function PoSetPowerState: param State not marshalable (POWER_STATE), function skipped",
+    "function SeSinglePrivilegeCheck: param PrivilegeValue not marshalable (win32foundation.LUID), function skipped",
+    "handle ORHKEY: free func ORCloseKey return not normalizable, no closer"
+  ]
+}

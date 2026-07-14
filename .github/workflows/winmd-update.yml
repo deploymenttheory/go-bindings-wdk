@@ -1,0 +1,80 @@
+name: WDK metadata update
+
+on:
+  schedule:
+    - cron: "0 7 * * 1" # Mondays 07:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Baseline ingest of the committed winmds
+        run: go run ./cmd/generate ingest --out old-metadata --win32-out old-metadata-win32
+
+      # Fetches the latest WDK metadata; the win32 winmd stays on the
+      # committed pin (it must match the go-bindings-win32 release in go.mod).
+      - name: Fetch the latest WDK winmd from NuGet
+        id: fetch
+        shell: bash
+        run: |
+          go run ./cmd/generate fetch-metadata | tee fetch.log
+          if git diff --quiet -- metadata/winmd; then
+            echo "updated=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "updated=true" >> "$GITHUB_OUTPUT"
+            echo "version=$(python -c "import json;d=json.load(open('metadata/winmd/PROVENANCE.json'));print(d[0]['version'])")" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Re-ingest the new winmd
+        if: steps.fetch.outputs.updated == 'true'
+        run: go run ./cmd/generate ingest
+
+      - name: Validate
+        if: steps.fetch.outputs.updated == 'true'
+        run: go run ./cmd/generate validate
+
+      - name: Build the API diff for the PR body
+        if: steps.fetch.outputs.updated == 'true'
+        shell: bash
+        run: |
+          go run ./cmd/generate diff --old old-metadata --new metadata/wdk | head -c 60000 > pr-body.md
+
+      - name: Regenerate bindings and rewrite the diagnostics baseline
+        if: steps.fetch.outputs.updated == 'true'
+        run: go run ./cmd/generate bindings --diagnostics metadata/diagnostics-baseline.json
+
+      - name: Regenerate the ABI acceptance test
+        if: steps.fetch.outputs.updated == 'true'
+        run: go run ./cmd/generate abitest
+
+      - name: Build and test
+        if: steps.fetch.outputs.updated == 'true'
+        run: |
+          go build ./...
+          go test ./internal/... ./acceptance/
+
+      - name: Open the update PR
+        if: steps.fetch.outputs.updated == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: chore/winmd-update
+          title: "chore(metadata): update WDK winmd to ${{ steps.fetch.outputs.version }}"
+          body-path: pr-body.md
+          commit-message: "chore(metadata): update WDK winmd to ${{ steps.fetch.outputs.version }}"
+          add-paths: |
+            metadata/winmd/
+            metadata/diagnostics-baseline.json
+            bindings/
+            acceptance/abi_generated_test.go

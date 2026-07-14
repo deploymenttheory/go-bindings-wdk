@@ -48,3 +48,6 @@ __pycache__/
 *.exe
 *.dylib
 *.so
+# Derived IR caches: regenerate with `go run ./cmd/generate/ ingest`
+metadata/wdk/
+metadata/win32/
