@@ -77,6 +77,16 @@ Generated code (`bindings/`) is never hand-edited — fix the generator under
 - [Errors](docs/errors.md) — the NTSTATUS domain
 - [`CLAUDE.md`](CLAUDE.md) — the dual-assembly generator architecture
 
+## Related projects
+
+Part of the deploymenttheory Windows bindings family:
+
+- [go-winmd](https://github.com/deploymenttheory/go-winmd) — the shared ECMA-335 `.winmd` metadata reader
+- [go-bindings-win32](https://github.com/deploymenttheory/go-bindings-win32) — the Win32 API surface — functions, structs, enums, COM
+- **go-bindings-wdk** — the Windows Driver Kit / user-mode Native API surface *(this repo)*
+- [go-bindings-wmi](https://github.com/deploymenttheory/go-bindings-wmi) — typed WMI/CIM classes
+- [go-bindings-winrt](https://github.com/deploymenttheory/go-bindings-winrt) — WinRT bindings (in progress)
+
 ## License
 
 [MIT](LICENSE).
