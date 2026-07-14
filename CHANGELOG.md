@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.1.0 (2026-07-14)
+
+
+### Features
+
+* bootstrap the WDK bindings generator and emit the Windows.Wdk surface ([8f012a8](https://github.com/deploymenttheory/go-bindings-wdk/commit/8f012a85c04bc747f39cff230b9f0fed87392630))
+
+
+### Bug Fixes
+
+* **ci:** let include:scope derive the dependabot commit scope ([7dddf6e](https://github.com/deploymenttheory/go-bindings-wdk/commit/7dddf6e3949da22159fb7c6be312100591820103))
+* **ci:** stop dependabot doubling the commit scope to chore(deps)(deps) ([b4f186a](https://github.com/deploymenttheory/go-bindings-wdk/commit/b4f186a71343e46b83e6725b54c24678b91e6a20))
+* **docs:** add a complete Related projects section to the README ([dad07a2](https://github.com/deploymenttheory/go-bindings-wdk/commit/dad07a2feb6450e7d613bd2bcfce87aa69b11891))
+
+## Changelog
+
 All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
