@@ -67,6 +67,16 @@ go run ./cmd/generate bindings         # IR → bindings/wdk (self-cleaning, det
 Generated code (`bindings/`) is never hand-edited — fix the generator under
 `internal/` and regenerate.
 
+## Examples & docs
+
+- [`examples/sysinfo`](examples/sysinfo) — runnable: OS version + processor
+  count via the Native API.
+- [Getting started](docs/getting-started.md)
+- [Cross-module types](docs/cross-module-types.md) — how Wdk composes with the
+  win32 module, and the version-pin invariant
+- [Errors](docs/errors.md) — the NTSTATUS domain
+- [`CLAUDE.md`](CLAUDE.md) — the dual-assembly generator architecture
+
 ## License
 
 [MIT](LICENSE).
