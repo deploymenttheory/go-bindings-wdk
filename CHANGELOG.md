@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.1](https://github.com/deploymenttheory/go-bindings-wdk/compare/v0.1.0...v0.1.1) (2026-07-16)
+
+
+### Bug Fixes
+
+* bump go-bindings-win32 to v0.2.0 (win32.OutParam) ([37c595b](https://github.com/deploymenttheory/go-bindings-wdk/commit/37c595b506d618821e2a43ee9a1e1dcc2ec8281d))
+* heap-escape elevated out-params in the emitter (port from go-bindings-win32) ([ed25204](https://github.com/deploymenttheory/go-bindings-wdk/commit/ed2520421e892aec1e55c3b9ec184c9603119a47))
+* heap-escape elevated out-params in the emitter (port from go-bindings-win32) ([b920256](https://github.com/deploymenttheory/go-bindings-wdk/commit/b9202566cd552c14dd02a328ed4737e497a63881))
+
 ## 0.1.0 (2026-07-14)
 
 
